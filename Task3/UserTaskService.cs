@@ -1,36 +1,41 @@
 ﻿using System;
+using System.Linq;
 using Task3.DoNotChange;
 
 namespace Task3
 {
-    public class UserTaskService
+    public class UserTaskService : IUserTaskService
     {
-        private readonly IUserDao _userDao;
+        private readonly IUserDao userDao;
 
         public UserTaskService(IUserDao userDao)
         {
-            _userDao = userDao;
+            this.userDao = userDao ?? throw new ArgumentNullException(nameof(userDao));
         }
 
-        public int AddTaskForUser(int userId, UserTask task)
+        public void AddTaskForUser(int userId, UserTask task)
         {
             if (userId < 0)
-                return -1;
-
-            var user = _userDao.GetUser(userId);
-            if (user == null)
-                return -2;
-
-            var tasks = user.Tasks;
-            foreach (var t in tasks)
             {
-                if (string.Equals(task.Description, t.Description, StringComparison.OrdinalIgnoreCase))
-                    return -3;
+                throw new ArgumentOutOfRangeException(nameof(userId), "User id should be greater than 0.");
             }
 
-            tasks.Add(task);
+            var user = userDao.GetUser(userId) ?? throw new UserNotFoundException("User not found", nameof(userId));
+            if (!IsUserContainsTask(user, task))
+            {
+                user.Tasks.Add(task);
+            }
+        }
 
-            return 0;
+        protected bool IsUserContainsTask(IUser user, UserTask task)
+        {
+            if (user.Tasks.Any(x =>
+                string.Equals(task?.Description, x.Description, StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new ArgumentException("The task already exists", nameof(task));  
+            }
+
+            return false;
         }
     }
 }

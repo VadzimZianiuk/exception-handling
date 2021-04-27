@@ -1,42 +1,50 @@
-﻿using Task3.DoNotChange;
+﻿using System;
+using Task3.DoNotChange;
 
 namespace Task3
 {
     public class UserTaskController
     {
-        private readonly UserTaskService _taskService;
+        private readonly IUserTaskService taskService;
 
-        public UserTaskController(UserTaskService taskService)
+        public UserTaskController(IUserTaskService taskService)
         {
-            _taskService = taskService;
+            this.taskService = taskService ?? throw new ArgumentNullException(nameof(taskService));
         }
 
         public bool AddTaskForUser(int userId, string description, IResponseModel model)
         {
-            string message = GetMessageForModel(userId, description);
-            if (message != null)
+            var task = new UserTask(description);
+            try
             {
-                model.AddAttribute("action_result", message);
-                return false;
+                taskService.AddTaskForUser(userId, task);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex, model);
             }
 
-            return true;
+            return false;
         }
 
-        private string GetMessageForModel(int userId, string description)
+        protected void HandleException(Exception ex, IResponseModel model)
         {
-            var task = new UserTask(description);
-            int result = _taskService.AddTaskForUser(userId, task);
-            if (result == -1)
-                return "Invalid userId";
-
-            if (result == -2)
-                return "User not found";
-
-            if (result == -3)
-                return "The task already exists";
-
-            return null;
+            switch (ex)
+            {
+                case ArgumentOutOfRangeException _:
+                    model?.AddAttribute("action_result", "Invalid userId");
+                    break;
+                case UserNotFoundException _:
+                    model?.AddAttribute("action_result", "User not found");
+                    break;
+                case ArgumentException _:
+                    model?.AddAttribute("action_result", "The task already exists");
+                    break;
+                default:
+                    model?.AddAttribute("action_result", "Unknown exception");
+                    break;
+            }
         }
     }
 }
