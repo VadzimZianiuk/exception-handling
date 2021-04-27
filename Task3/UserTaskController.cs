@@ -5,9 +5,10 @@ namespace Task3
 {
     public class UserTaskController
     {
-        private readonly IUserTaskService taskService;
+        private const string ModelErrorKey = "action_result";
+        private readonly UserTaskService taskService;
 
-        public UserTaskController(IUserTaskService taskService)
+        public UserTaskController(UserTaskService taskService)
         {
             this.taskService = taskService ?? throw new ArgumentNullException(nameof(taskService));
         }
@@ -17,25 +18,23 @@ namespace Task3
             var task = new UserTask(description);
             try
             {
-                return taskService.AddTaskForUser(userId, task);
+                taskService.AddTaskForUser(userId, task);
+                return true;
             }
-            catch (Exception ex)
+            catch (ArgumentOutOfRangeException)
             {
-                HandleException(ex, model);
+                model?.AddAttribute(ModelErrorKey, "Invalid userId");
+            }
+            catch (UserNotFoundException)
+            {
+                model?.AddAttribute(ModelErrorKey, "User not found");
+            }
+            catch (TaskAlreadyExistsException)
+            {
+                model?.AddAttribute(ModelErrorKey, "The task already exists");
             }
 
             return false;
-        }
-
-        protected void HandleException(Exception ex, IResponseModel model)
-        {
-            model?.AddAttribute("action_result", ex switch
-            {
-                ArgumentOutOfRangeException _ => "Invalid userId",
-                UserNotFoundException _ => "User not found",
-                TaskAlreadyExistsException _ => "The task already exists",
-                _ => "Unknown exception"
-            });
         }
     }
 }
