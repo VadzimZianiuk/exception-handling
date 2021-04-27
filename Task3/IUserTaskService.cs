@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Task3.DoNotChange;
+﻿using Task3.DoNotChange;
 
 namespace Task3
 {
     public interface IUserTaskService
     {
-       public void AddTaskForUser(int userId, UserTask task);
+        public bool AddTaskForUser(int userId, UserTask task);
     }
 }

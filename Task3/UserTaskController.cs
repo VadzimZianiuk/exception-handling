@@ -17,8 +17,7 @@ namespace Task3
             var task = new UserTask(description);
             try
             {
-                taskService.AddTaskForUser(userId, task);
-                return true;
+                return taskService.AddTaskForUser(userId, task);
             }
             catch (Exception ex)
             {
@@ -30,21 +29,13 @@ namespace Task3
 
         protected void HandleException(Exception ex, IResponseModel model)
         {
-            switch (ex)
+            model?.AddAttribute("action_result", ex switch
             {
-                case ArgumentOutOfRangeException _:
-                    model?.AddAttribute("action_result", "Invalid userId");
-                    break;
-                case UserNotFoundException _:
-                    model?.AddAttribute("action_result", "User not found");
-                    break;
-                case ArgumentException _:
-                    model?.AddAttribute("action_result", "The task already exists");
-                    break;
-                default:
-                    model?.AddAttribute("action_result", "Unknown exception");
-                    break;
-            }
+                ArgumentOutOfRangeException _ => "Invalid userId",
+                UserNotFoundException _ => "User not found",
+                TaskAlreadyExistsException _ => "The task already exists",
+                _ => "Unknown exception"
+            });
         }
     }
 }

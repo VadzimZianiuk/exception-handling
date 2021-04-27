@@ -13,18 +13,22 @@ namespace Task3
             this.userDao = userDao ?? throw new ArgumentNullException(nameof(userDao));
         }
 
-        public void AddTaskForUser(int userId, UserTask task)
+        public bool AddTaskForUser(int userId, UserTask task)
         {
             if (userId < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(userId), "User id should be greater than 0.");
+                throw new ArgumentOutOfRangeException(nameof(userId), "Invalid userId");
             }
 
             var user = userDao.GetUser(userId) ?? throw new UserNotFoundException("User not found", nameof(userId));
-            if (!IsUserContainsTask(user, task))
+            if (IsUserContainsTask(user, task))
             {
-                user.Tasks.Add(task);
+                return false;
             }
+
+            user.Tasks.Add(task);
+            return true;
+
         }
 
         protected bool IsUserContainsTask(IUser user, UserTask task)
@@ -32,7 +36,7 @@ namespace Task3
             if (user.Tasks.Any(x =>
                 string.Equals(task?.Description, x.Description, StringComparison.OrdinalIgnoreCase)))
             {
-                throw new ArgumentException("The task already exists", nameof(task));  
+                throw new TaskAlreadyExistsException("The task already exists", nameof(task));  
             }
 
             return false;
