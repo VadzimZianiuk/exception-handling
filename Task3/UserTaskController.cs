@@ -5,7 +5,6 @@ namespace Task3
 {
     public class UserTaskController
     {
-        private const string ModelErrorKey = "action_result";
         private readonly UserTaskService taskService;
 
         public UserTaskController(UserTaskService taskService)
@@ -13,28 +12,17 @@ namespace Task3
             this.taskService = taskService ?? throw new ArgumentNullException(nameof(taskService));
         }
 
-        public bool AddTaskForUser(int userId, string description, IResponseModel model)
+        /// <summary>
+        /// Add task for user.
+        /// </summary>
+        /// <param name="userId">User Id.</param>
+        /// <param name="description">Task to add.</param>
+        /// <returns>True if task added for user, otherwise false.</returns>
+        /// <remarks>Method uses <see cref="UserTaskService.AddTaskForUser"/>. It can throws exceptions.</remarks>
+        public bool AddTaskForUser(int userId, string description)
         {
             var task = new UserTask(description);
-            try
-            {
-                taskService.AddTaskForUser(userId, task);
-                return true;
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                model?.AddAttribute(ModelErrorKey, "Invalid userId");
-            }
-            catch (UserNotFoundException)
-            {
-                model?.AddAttribute(ModelErrorKey, "User not found");
-            }
-            catch (TaskAlreadyExistsException)
-            {
-                model?.AddAttribute(ModelErrorKey, "The task already exists");
-            }
-
-            return false;
+            return taskService.AddTaskForUser(userId, task);
         }
     }
 }

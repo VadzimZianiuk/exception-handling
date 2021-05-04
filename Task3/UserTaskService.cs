@@ -13,7 +13,16 @@ namespace Task3
             this.userDao = userDao ?? throw new ArgumentNullException(nameof(userDao));
         }
 
-        public void AddTaskForUser(int userId, UserTask task)
+        /// <summary>
+        /// Add task for user.
+        /// </summary>
+        /// <param name="userId">User Id.</param>
+        /// <param name="task">Task to add.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Throws when userId less than 0.</exception>
+        /// <exception cref="UserNotFoundException">Throws when user </exception>
+        /// <exception cref="TaskAlreadyExistsException">Throws when User already has a <param name="task">.</param></exception>
+        /// <returns>True if task added for user, otherwise false.</returns>
+        public bool AddTaskForUser(int userId, UserTask task)
         {
             if (userId < 0)
             {
@@ -27,9 +36,10 @@ namespace Task3
             }
 
             user.Tasks.Add(task);
+            return true;
         }
 
-        protected bool IsUserContainsTask(IUser user, UserTask task) =>
+        protected virtual bool IsUserContainsTask(IUser user, UserTask task) =>
             user.Tasks.Any(x =>
                 string.Equals(task?.Description, x.Description, StringComparison.OrdinalIgnoreCase));
     }

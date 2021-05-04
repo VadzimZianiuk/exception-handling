@@ -2,7 +2,7 @@
 
 namespace Task3
 {
-    internal class TaskAlreadyExistsException : ArgumentException
+    public class TaskAlreadyExistsException : ArgumentException
     {
         public TaskAlreadyExistsException(string message)
             : base(message)

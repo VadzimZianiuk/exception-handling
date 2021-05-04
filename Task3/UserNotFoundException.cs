@@ -2,7 +2,7 @@
 
 namespace Task3
 {
-    internal class UserNotFoundException : ArgumentException
+    public class UserNotFoundException : ArgumentException
     {
         public UserNotFoundException(string message)
             : base(message)

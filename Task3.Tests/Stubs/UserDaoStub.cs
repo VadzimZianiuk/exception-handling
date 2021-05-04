@@ -5,16 +5,14 @@ namespace Task3.Tests.Stubs
 {
     internal class UserDaoStub : IUserDao
     {
-        private readonly IDictionary<int, IUser> _data = new Dictionary<int, IUser>
+        private readonly IDictionary<int, IUser> data = new Dictionary<int, IUser>
         {
             { 1, new UserStab() }
         };
 
         public IUser GetUser(int id)
         {
-            if (_data.ContainsKey(id))
-                return _data[id];
-            return null;
+            return this.data.ContainsKey(id) ? data[id] : null;
         }
     }
 }
