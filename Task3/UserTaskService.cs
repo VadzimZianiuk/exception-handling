@@ -29,7 +29,7 @@ namespace Task3
             user.Tasks.Add(task);
         }
 
-        protected bool IsUserContainsTask(IUser user, UserTask task) =>
+        protected virtual bool IsUserContainsTask(IUser user, UserTask task) =>
             user.Tasks.Any(x =>
                 string.Equals(task?.Description, x.Description, StringComparison.OrdinalIgnoreCase));
     }
